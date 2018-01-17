@@ -72,6 +72,24 @@ router.post('/', function(req, res, next) {
               res.send('loginFail');
           }
       })
+  }else if (method='uploadOrder'){
+      var uuid=req.body.uuid;
+      var name=req.body.name;
+      var address=req.body.address;
+      var tel=req.body.tel;
+      var recipname=req.body.recipname;
+      var recipaddress=req.body.recipadd;
+      var reciptel=req.body.reciptel;
+
+      registHelper.addOrder(uuid,name,address,tel,recipname,recipaddress,reciptel,function (callback) {
+          if (callback){
+              console.log("下单成功");
+              res.send("suc");
+          }else {
+              res.send('fail');
+          }
+      });
+
   }
 });
 

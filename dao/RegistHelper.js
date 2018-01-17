@@ -102,6 +102,47 @@ var getUUIDByAddress=function (address, callback) {
     })
 };
 
+var addOrderIntoUser=function (uuid,name, add, tel, recipname, recipadd, reciptel, callback) {
+    connection.query('select * from users where uuid=?',uuid,function (err, result, field) {
+        console.log(result);
+        var currentcomments=result[0].orders;
+        if (currentcomments==null){
+            console.log('it is null');//new出一个新的json
+            var jsonlist='{\"orderlist\":[';
+            jsonlist+='{\"name\":\"'+name+
+                '\",\"add\":\"'+add+
+                '\",\"tel\":\"'+tel+
+                '\",\"recipname\":\"'+recipname+
+                '\",\"recipadd\":\"'+recipadd+
+                '\",\"reciptel\":\"'+reciptel+'\"'+
+                '}';
+            jsonlist+=']}';
+            var str=[jsonlist,uuid];
+            console.log(jsonlist)
+            connection.query('update users SET orders= ? WHERE uuid = ?',str);
+        }else {
+            //如果不为空则将旧的与新post的拼接起来。
+            console.log('currentcomments:'+currentcomments);
+            var newstrt=currentcomments.match(/\[.*\]/).toString();
+            console.log('newstrt:'+newstrt);
+            var finalstr=newstrt.match(/{.*}/);
+            console.log('finalstr:'+finalstr);
+            var toaddstr='{\"name\":\"'+name+
+                '\",\"add\":\"'+add+
+                '\",\"tel\":\"'+tel+
+                '\",\"recipname\":\"'+recipname+
+                '\",\"recipadd\":\"'+recipadd+
+                '\",\"reciptel\":\"'+reciptel+'\"'+
+                '}';;
+            var finaljson='{"orderlist":['+finalstr+','+toaddstr+']}';
+            console.log('json:'+finaljson);
+            var result=[finaljson,uuid];
+            connection.query('update users set orders=? where uuid =?',result);
+        }
+        callback(true);
+    });
+};
+
 exports.insertToRegisterTable=function (address, num, callback) {
     queryFromDbToInsert(address,num,callback);
 };
@@ -116,6 +157,9 @@ exports.checkLoginResult=function (address, pwd, callback) {
 };
 exports.getUUID=function (address, callback) {
     getUUIDByAddress(address,callback);
+};
+exports.addOrder=function (uuid,name, add, tel, recipname, recipadd, reciptel, callback) {
+  addOrderIntoUser(uuid,name,add,tel,recipname,recipadd,reciptel,callback);
 };
 
 
